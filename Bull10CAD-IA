@@ -1,0 +1,572 @@
+"""
+Bull10CAD-IA - Agent Expert en Intelligence Artificielle pour Bureau d'Études Techniques
+Spécialisé en Ingénierie Civile, Architecture et BTP
+"""
+
+import json
+import datetime
+from typing import Dict, List, Optional, Any
+from dataclasses import dataclass
+from enum import Enum
+
+class DocumentType(Enum):
+    RAPPORT_TECHNIQUE = "rapport_technique"
+    CCTP = "cctp"
+    DEVIS = "devis"
+    METRE = "metre"
+    PV_REUNION = "pv_reunion"
+    PROPOSITION_COMMERCIALE = "proposition_commerciale"
+    CHECKLIST = "checklist"
+    PAQ = "paq"
+
+class Phase(Enum):
+    CONCEPTION = "conception"
+    ETUDE = "etude"
+    EXECUTION = "execution"
+    CONTROLE = "controle"
+    SUPERVISION = "supervision"
+    RECEPTION = "reception"
+
+@dataclass
+class Project:
+    id: str
+    name: str
+    type: str
+    phase: Phase
+    location: str
+    start_date: datetime.date
+    end_date: datetime.date
+    budget: float
+    team_lead: str
+
+class Bull10CADIA:
+    """
+    Agent IA Expert pour Bureau d'Études Techniques
+    """
+    
+    def __init__(self):
+        self.name = "Bull10CAD-IA"
+        self.version = "1.0"
+        self.specialties = [
+            "Ingénierie civile",
+            "Architecture", 
+            "BTP",
+            "Gestion documentaire",
+            "Analyse de données",
+            "Conformité réglementaire"
+        ]
+        self.current_project = None
+        self.knowledge_base = self._init_knowledge_base()
+        
+    def _init_knowledge_base(self):
+        """Initialise la base de connaissances techniques"""
+        return {
+            "normes": {
+                "eurocodes": ["EC0", "EC1", "EC2", "EC3", "EC4", "EC5", "EC6", "EC7", "EC8", "EC9"],
+                "dtu": ["DTU 13.1", "DTU 20.1", "DTU 21", "DTU 23.1", "DTU 26.1"],
+                "nf": ["NF EN 206", "NF P06-001", "NF P18-201"]
+            },
+            "materiaux": {
+                "beton": {"classes": ["C25/30", "C30/37", "C35/45"], "essais": ["compression", "traction"]},
+                "acier": {"nuances": ["S235", "S355", "S460"], "essais": ["traction", "resilience"]},
+                "bois": {"classes": ["C24", "GL24h", "GL28h"], "essais": ["flexion", "compression"]}
+            },
+            "procedures": {
+                "controle_beton": ["Température", "Affaissement", "Résistance"],
+                "reception_gros_oeuvre": ["Géométrie", "Aspect", "Tolérances"]
+            }
+        }
+
+    def greet(self):
+        """Message d'accueil de l'agent"""
+        return f"""
+🏗️ Bonjour ! Je suis {self.name}, votre agent IA expert en bureau d'études techniques.
+
+🎯 **Mes domaines d'expertise :**
+• Génération et gestion de documents techniques
+• Analyse et vérification de données
+• Support à la conception et planification  
+• Gestion des connaissances et conformité
+
+📋 **Je peux vous aider avec :**
+• Rédaction de rapports techniques, CCTP, devis
+• Analyse de données de contrôle et monitoring
+• Vérification de conformité réglementaire
+• Génération de checklists et procédures
+• Optimisation de plannings
+
+⚡ **Comment m'utiliser :**
+Décrivez votre besoin en précisant le type de document, le projet concerné et les données disponibles. Je vous proposerai une méthodologie claire avant de vous fournir le résultat.
+
+Que puis-je faire pour vous aujourd'hui ?
+        """
+
+    def analyze_request(self, request: str) -> Dict[str, Any]:
+        """Analyse une demande utilisateur et détermine la méthodologie"""
+        request_lower = request.lower()
+        
+        # Détection du type de tâche
+        task_type = None
+        if any(word in request_lower for word in ["rapport", "étude", "note de calcul"]):
+            task_type = "generation_document"
+        elif any(word in request_lower for word in ["cctp", "cahier des charges"]):
+            task_type = "generation_cctp"
+        elif any(word in request_lower for word in ["devis", "métré", "quantités"]):
+            task_type = "generation_devis"
+        elif any(word in request_lower for word in ["analyse", "données", "contrôle"]):
+            task_type = "analyse_donnees"
+        elif any(word in request_lower for word in ["checklist", "vérification"]):
+            task_type = "generation_checklist"
+        elif any(word in request_lower for word in ["planning", "planification"]):
+            task_type = "optimisation_planning"
+        elif any(word in request_lower for word in ["conformité", "norme"]):
+            task_type = "verification_conformite"
+        
+        return {
+            "task_type": task_type,
+            "complexity": "medium",  # À affiner avec l'analyse du contenu
+            "estimated_time": "5-15 minutes",
+            "required_data": self._identify_required_data(request),
+            "methodology": self._generate_methodology(task_type)
+        }
+
+    def _identify_required_data(self, request: str) -> List[str]:
+        """Identifie les données nécessaires pour traiter la demande"""
+        required_data = []
+        request_lower = request.lower()
+        
+        if "métré" in request_lower or "quantités" in request_lower:
+            required_data.extend(["plans", "cotes", "spécifications techniques"])
+        if "contrôle" in request_lower or "essais" in request_lower:
+            required_data.extend(["résultats d'essais", "seuils réglementaires"])
+        if "planning" in request_lower:
+            required_data.extend(["fichier MS Project/Excel", "ressources disponibles"])
+        if "conformité" in request_lower:
+            required_data.extend(["référentiel normatif", "documents à vérifier"])
+            
+        return required_data
+
+    def _generate_methodology(self, task_type: str) -> List[str]:
+        """Génère la méthodologie selon le type de tâche"""
+        methodologies = {
+            "generation_document": [
+                "1. Analyse du besoin et identification du type de document",
+                "2. Structuration du plan selon les standards",
+                "3. Rédaction du contenu technique",
+                "4. Vérification de la conformité réglementaire",
+                "5. Mise en forme finale"
+            ],
+            "generation_cctp": [
+                "1. Analyse du projet et des exigences",
+                "2. Consultation de la base normative applicable",
+                "3. Structuration par lots et corps d'état",
+                "4. Rédaction des clauses techniques",
+                "5. Intégration des modes opératoires"
+            ],
+            "analyse_donnees": [
+                "1. Import et validation des données",
+                "2. Analyse statistique et détection d'anomalies",
+                "3. Comparaison aux seuils réglementaires",
+                "4. Génération de visualisations",
+                "5. Rédaction du rapport d'analyse"
+            ],
+            "generation_checklist": [
+                "1. Identification des points de contrôle réglementaires",
+                "2. Structuration par phases et lots",
+                "3. Définition des critères d'acceptation",
+                "4. Intégration des références normatives",
+                "5. Formatage pour usage terrain"
+            ]
+        }
+        return methodologies.get(task_type, ["Méthodologie à définir selon le contexte"])
+
+    def generate_pv_reception_template(self, project_type: str = "bâtiment scolaire") -> str:
+        """Génère un modèle de PV de réception pour gros œuvre"""
+        
+        methodology = [
+            "1. En-tête administratif complet",
+            "2. Liste des participants et leurs qualités", 
+            "3. Rappel de l'ouvrage et des lots concernés",
+            "4. Tableaux-checklist détaillés par élément",
+            "5. Conclusions et réserves éventuelles"
+        ]
+        
+        template = f"""
+# PROCÈS-VERBAL DE RÉCEPTION - GROS ŒUVRE
+## {project_type.upper()}
+
+---
+
+### 📋 INFORMATIONS GÉNÉRALES
+
+**Projet :** [Nom du projet]  
+**Maître d'ouvrage :** [Nom MO]  
+**Entreprise :** [Nom entreprise]  
+**Date de visite :** [Date]  
+**Heure :** [Heure début] - [Heure fin]  
+
+### 👥 PARTICIPANTS
+
+| Nom | Fonction | Société | Signature |
+|-----|----------|---------|-----------|
+| [Nom] | Chef de projet | [Société] | |
+| [Nom] | Conducteur travaux | [Entreprise] | |
+| [Nom] | Contrôleur technique | [Bureau contrôle] | |
+
+---
+
+### 🏗️ OBJET DE LA VISITE
+
+Réception des travaux de gros œuvre conformément au marché n°[X] et aux plans d'exécution.
+
+**Lots concernés :**
+- Fondations
+- Murs et voiles 
+- Dalle et planchers
+
+---
+
+### ✅ CHECKLIST FONDATIONS
+
+| Point de contrôle | Référence | Conformité | Observations |
+|------------------|-----------|------------|--------------|
+| Implantation géométrique | DTU 13.1 | ☐ OK ☐ NOK | |
+| Cotes d'arase | Plans exec | ☐ OK ☐ NOK | |
+| Qualité du béton | NF EN 206 | ☐ OK ☐ NOK | |
+| État de surface | CCTP | ☐ OK ☐ NOK | |
+| Réservations et attentes | Plans | ☐ OK ☐ NOK | |
+| Évacuation des eaux | DTU 20.1 | ☐ OK ☐ NOK | |
+
+### ✅ CHECKLIST MURS ET VOILES
+
+| Point de contrôle | Référence | Conformité | Observations |
+|------------------|-----------|------------|--------------|
+| Verticalité | DTU 21 | ☐ OK ☐ NOK | Tolérances : ±1cm/étage |
+| Épaisseurs | Plans exec | ☐ OK ☐ NOK | |
+| Liaisons horizontales | CCTP | ☐ OK ☐ NOK | |
+| Réservations | Plans | ☐ OK ☐ NOK | |
+| Qualité parement | CCTP | ☐ OK ☐ NOK | |
+| Joints de dilatation | Plans | ☐ OK ☐ NOK | |
+
+### ✅ CHECKLIST DALLE ET PLANCHERS
+
+| Point de contrôle | Référence | Conformité | Observations |
+|------------------|-----------|------------|--------------|
+| Planéité | DTU 21 | ☐ OK ☐ NOK | Tolérances : ±5mm/2m |
+| Horizontalité | Plans exec | ☐ OK ☐ NOK | |
+| Épaisseur dalle | Plans | ☐ OK ☐ NOK | |
+| Réservations | Plans | ☐ OK ☐ NOK | |
+| État de surface | CCTP | ☐ OK ☐ NOK | |
+| Étanchéité (si applicable) | DTU 43.1 | ☐ OK ☐ NOK | |
+
+---
+
+### 📊 BILAN GLOBAL
+
+**Points positifs :**
+- [À compléter]
+
+**Réserves techniques :**
+- [À compléter si nécessaire]
+
+**Non-conformités :**
+- [À compléter si nécessaire]
+
+### ⚖️ CONCLUSIONS
+
+☐ **RÉCEPTION PRONONCÉE** sans réserve  
+☐ **RÉCEPTION PRONONCÉE** avec réserves (voir liste ci-dessus)  
+☐ **RÉCEPTION DIFFÉRÉE** - Travaux de reprise nécessaires
+
+**Délai de levée des réserves :** [X] jours ouvrés
+
+**Prochaine visite prévue le :** [Date si applicable]
+
+---
+
+### 📝 SIGNATURES
+
+**Chef de projet :**  
+Date : ___________  
+Signature :
+
+**Entreprise :**  
+Date : ___________  
+Signature :
+
+**Contrôleur technique :**  
+Date : ___________  
+Signature :
+
+---
+*Document généré par Bull10CAD-IA - Conforme CCTG*
+        """
+        
+        return template
+
+    def generate_cctp_template(self, project_type: str, lot: str) -> str:
+        """Génère un modèle de CCTP pour un lot spécifique"""
+        
+        template = f"""
+# CAHIER DES CLAUSES TECHNIQUES PARTICULIÈRES (CCTP)
+## LOT {lot.upper()} - {project_type.upper()}
+
+---
+
+### 📋 ARTICLE 1 - OBJET DU MARCHÉ
+
+Le présent CCTP définit les conditions techniques d'exécution des travaux de {lot} dans le cadre du projet {project_type}.
+
+### 📋 ARTICLE 2 - DOCUMENTS DE RÉFÉRENCE
+
+**Normes applicables :**
+- Eurocodes (EC0 à EC8)
+- DTU série 20 (Maçonnerie)
+- DTU série 21 (Béton armé)
+- NF EN 206 (Bétons)
+
+**Documents du marché :**
+- Plans d'architecte
+- Plans d'exécution
+- Note de calculs structures
+- Étude de sol
+
+### 📋 ARTICLE 3 - DESCRIPTION DES TRAVAUX
+
+#### 3.1 - Consistance générale
+[Description détaillée des travaux à réaliser]
+
+#### 3.2 - Contraintes particulières
+- Phasage des travaux
+- Contraintes d'accès
+- Interface avec autres lots
+
+### 📋 ARTICLE 4 - MATÉRIAUX
+
+#### 4.1 - Bétons
+**Béton de propreté :** Classe C12/15
+**Béton armé courant :** Classe C25/30
+**Béton hautes performances :** Classe C35/45
+
+*Conformité : NF EN 206 + Marquage CE*
+
+#### 4.2 - Aciers
+**Armatures HA :** Nuance B500B
+**Armatures de précontrainte :** [Si applicable]
+
+*Conformité : NF A35-080*
+
+### 📋 ARTICLE 5 - MODE OPÉRATOIRE
+
+#### 5.1 - Préparation
+- Nettoyage et préparation des supports
+- Implantation et traçage
+- Mise en place des coffrages
+
+#### 5.2 - Exécution
+- Pose des armatures
+- Coulage du béton
+- Vibration et surfaçage
+
+#### 5.3 - Finitions
+- Décoffrage
+- Ragréage si nécessaire
+- Protection et cure
+
+### 📋 ARTICLE 6 - CONTRÔLES ET ESSAIS
+
+#### 6.1 - Contrôles internes
+- Autocontrôle permanent
+- Points d'arrêt obligatoires
+- Fiches de suivi
+
+#### 6.2 - Contrôles externes
+- Contrôle technique
+- Contrôles laboratoire
+- Essais de réception
+
+### 📋 ARTICLE 7 - TOLÉRANCES
+
+| Élément | Tolérance | Référence |
+|---------|-----------|-----------|
+| Implantation | ±10mm | DTU 21 |
+| Verticalité | ±1cm/étage | DTU 21 |
+| Planéité | ±5mm/2m | DTU 21 |
+
+### 📋 ARTICLE 8 - RÉCEPTION
+
+#### 8.1 - Conditions de réception
+- Conformité aux plans
+- Respect des tolérances
+- Finitions conformes
+
+#### 8.2 - Documents à fournir
+- DOE (Dossier Ouvrages Exécutés)
+- PV d'essais
+- Fiches produits et certificats
+
+---
+
+*CCTP généré par Bull10CAD-IA - Version 1.0*
+*À adapter selon spécificités du projet*
+        """
+        
+        return template
+
+    def analyze_test_data(self, data: Dict[str, Any]) -> Dict[str, Any]:
+        """Analyse des données d'essais et de contrôle"""
+        
+        results = {
+            "summary": {},
+            "alerts": [],
+            "recommendations": [],
+            "compliance": True
+        }
+        
+        # Exemple d'analyse pour essais béton
+        if "concrete_tests" in data:
+            concrete_data = data["concrete_tests"]
+            
+            # Analyse résistance
+            resistances = concrete_data.get("resistance", [])
+            if resistances:
+                avg_resistance = sum(resistances) / len(resistances)
+                min_resistance = min(resistances)
+                
+                results["summary"]["resistance_moyenne"] = avg_resistance
+                results["summary"]["resistance_mini"] = min_resistance
+                
+                # Vérification seuils (exemple C25/30)
+                required_strength = 25  # MPa
+                if min_resistance < required_strength:
+                    results["alerts"].append(f"Résistance insuffisante: {min_resistance} < {required_strength} MPa")
+                    results["compliance"] = False
+                    results["recommendations"].append("Prévoir essais complémentaires")
+        
+        return results
+
+    def generate_checklist(self, element_type: str, phase: str) -> str:
+        """Génère une checklist spécifique"""
+        
+        checklists = {
+            "dalle_beton": {
+                "avant_coulage": [
+                    "☐ Implantation vérifiée",
+                    "☐ Coffrages en place et étanches", 
+                    "☐ Armatures conformes aux plans",
+                    "☐ Réservations positionnées",
+                    "☐ Béton conforme à la commande"
+                ],
+                "pendant_coulage": [
+                    "☐ Contrôle affaissement béton",
+                    "☐ Vibration homogène",
+                    "☐ Surfaçage régulier",
+                    "☐ Prise d'échantillons"
+                ],
+                "après_coulage": [
+                    "☐ Protection mise en place",
+                    "☐ Cure respectée",
+                    "☐ Contrôle planéité",
+                    "☐ PV d'essais rédigé"
+                ]
+            }
+        }
+        
+        checklist_items = checklists.get(element_type, {}).get(phase, [])
+        
+        return f"""
+# CHECKLIST - {element_type.upper()} - {phase.upper()}
+
+## Points de contrôle
+
+{chr(10).join(checklist_items)}
+
+## Observations
+_________________________________
+_________________________________
+_________________________________
+
+**Contrôleur :** ________________
+**Date :** ____________________
+**Signature :** ________________
+        """
+
+    def process_request(self, request: str) -> str:
+        """Traite une demande utilisateur complète"""
+        
+        # Analyse de la demande
+        analysis = self.analyze_request(request)
+        
+        # Confirmation et méthodologie
+        response = f"""
+📋 **Demande reçue et analysée**
+
+🎯 **Type de tâche identifié :** {analysis['task_type']}
+⏱️ **Temps estimé :** {analysis['estimated_time']}
+
+📊 **Méthodologie proposée :**
+{chr(10).join(analysis['methodology'])}
+
+📄 **Données requises :**
+{chr(10).join(f"• {data}" for data in analysis['required_data'])}
+
+✅ **Puis-je procéder avec cette approche ?**
+
+---
+
+💡 **Note :** Pour une précision maximale, n'hésitez pas à me fournir les documents et données mentionnés ci-dessus.
+        """
+        
+        return response
+
+    def get_regulatory_info(self, norm_code: str) -> str:
+        """Retourne les informations sur une norme spécifique"""
+        
+        norm_info = {
+            "EC2": {
+                "title": "Eurocode 2 - Calcul des structures en béton",
+                "scope": "Calcul des bâtiments et ouvrages de génie civil en béton",
+                "key_articles": ["4.4.2 - Enrobage", "7.2 - Fissuration", "9.2 - Flèches"]
+            },
+            "DTU21": {
+                "title": "DTU 21 - Exécution des travaux en béton",
+                "scope": "Règles d'exécution des ouvrages en béton",
+                "key_articles": ["3.2 - Tolérances", "4.1 - Coffrages", "5.3 - Cure"]
+            }
+        }
+        
+        info = norm_info.get(norm_code, {"title": "Norme non trouvée"})
+        
+        return f"""
+📖 **{info['title']}**
+
+🎯 **Domaine d'application :** {info.get('scope', 'Non spécifié')}
+
+📋 **Articles clés :**
+{chr(10).join(f"• {article}" for article in info.get('key_articles', []))}
+
+⚠️ **Important :** Vérifiez toujours la version en vigueur et les amendements.
+        """
+
+# Exemple d'utilisation
+if __name__ == "__main__":
+    # Initialisation de l'agent
+    agent = Bull10CADIA()
+    
+    # Message d'accueil
+    print(agent.greet())
+    
+    # Exemple de traitement d'une demande
+    example_request = "Peux-tu rédiger un modèle de procès-verbal de réception de lots de gros œuvre pour un chantier de bâtiment scolaire ?"
+    
+    print("\n" + "="*80)
+    print("EXEMPLE DE TRAITEMENT DE DEMANDE")
+    print("="*80)
+    print(f"Demande : {example_request}")
+    print("\nRéponse de l'agent :")
+    print(agent.process_request(example_request))
+    
+    print("\n" + "="*80)
+    print("GÉNÉRATION DU MODÈLE PV")
+    print("="*80)
+    print(agent.generate_pv_reception_template("bâtiment scolaire"))
